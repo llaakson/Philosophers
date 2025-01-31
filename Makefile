@@ -1,6 +1,7 @@
 NAME = philo
 
 SOURCES =	main.c \
+		utils.c
 		  
 HEADF	=	philo.h
 
@@ -15,7 +16,7 @@ all: $(NAME)
 	$(CC)	$(CFLAGS)	-c	$<	-o	$@
 
 $(NAME): $(OBJECTS)
-	ar	-rcs	$(NAME) $(OBJECTS)
+	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
 	rm -f $(OBJECTS)

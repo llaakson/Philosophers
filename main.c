@@ -1,12 +1,5 @@
 #include "philo.h"
 
-size_t	get_time()
-{
-	struct timeval current_time;
-
-	gettimeofday(&current_time, NULL);
-	return (current_time.tv_sec * 1000 + current_time.tv_usec / 1000);
-}
 void	*philosopher(void *ms)
 {
 	struct s_ms *msp = (struct s_ms*)ms;
@@ -18,7 +11,7 @@ void	*philosopher(void *ms)
 
 int create_threads(t_ms *ms)
 {
-	pthread_t philo[4];
+	pthread_t philo[200];
 	int i;
 
 	i = 0;
@@ -36,6 +29,21 @@ int create_threads(t_ms *ms)
 	return (0);
 }
 
+int init_philosophers(t_ms *ms, pthread_mutex_t *forks)
+{	
+	int i;
+
+	i = 0;
+	while (i < ms->number_of_philosophers)
+	{	
+		ms->name = i;
+		ms->fork_left = forks[i];
+		ms->fork_right = forks[i];
+		i++;
+	}
+	return (0);
+}
+
 int init_philo(t_ms *ms, char **argv)
 {
 	ms->number_of_philosophers = ft_atoi(argv[1]);
@@ -46,9 +54,24 @@ int init_philo(t_ms *ms, char **argv)
 	return (ms->time_to_die);
 }
 
+int init_forks(pthread_mutex_t *forks, t_ms *ms)
+{
+	int	i;
+
+	i = 0;
+	while (i < ms->number_of_philosophers)
+	{
+		pthread_mutex_init(&forks[i], NULL);
+		i++;
+	}
+	return (0);
+	
+}
 int main(int argc, char **argv)
 {
 	t_ms ms;
+	//t_philosopher philo;
+	pthread_mutex_t forks[200];
 
 	if (argc < 5 || argc >= 6)
 	{
@@ -56,6 +79,8 @@ int main(int argc, char **argv)
 		return (1);
 	}
 	init_philo(&ms, argv);
+	init_forks(forks, &ms);
+	init_philosophers(&ms, forks);
 	create_threads(&ms);
 	printf("Works\n");
 	return (0);

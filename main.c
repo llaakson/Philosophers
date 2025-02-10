@@ -1,54 +1,5 @@
 #include "philo.h"
 
-pthread_mutex_t mutex;
-
-void	philo_think(t_ms *ms)
-{
-	size_t time;
-
-	time = get_time() - ms->start;
-	printf("%ld %d is thinking\n", time, ms->name);
-	//usleep(ms->time_to_think * 1000);
-}
-
-void	philo_sleep(t_ms *ms)
-{
-	size_t time;
-
-	time = get_time() - ms->start;
-	printf("%ld %d is sleeping\n", time, ms->name);
-	usleep(ms->time_to_sleep * 1000);
-}
-
-void philo_eat(t_ms *ms)
-{
-	size_t time;
-	
-	pthread_mutex_lock(ms->fork_left);
-	pthread_mutex_lock(ms->fork_right);
-	time = get_time() - ms->start;
-	printf("%ld %d is eating\n", time, ms->name);
-	usleep(ms->time_to_eat * 1000);
-	pthread_mutex_unlock(ms->fork_left);
-	pthread_mutex_lock(ms->fork_right);
-}
-
-void	*philosopher(void *ptr)
-{
-	t_ms *ms;
-
-	ms = (t_ms *)ptr;
-	//printf("Created thread name %d\n", ms->name);
-	while (ms->number_of_meals != 0)
-	{
-		philo_eat(ms);
-		philo_sleep(ms);
-		//philo_think(ms);
-		ms->number_of_meals -= 1;
-	}
-	return (NULL);
-}
-
 int create_threads(t_ms *ms, t_philosopher *pp)
 {
 	int i;
@@ -76,7 +27,7 @@ int init_philo(t_ms *ms, char **argv)
 	ms->time_to_eat = ft_atoi(argv[3]);
 	ms->time_to_sleep = ft_atoi(argv[4]);
 	ms->number_of_meals = ft_atoi(argv[5]);
-	printf("Init_philo\n");
+	//printf("Init_philo\n");
 	return (ms->time_to_die);
 }
 
@@ -93,6 +44,11 @@ int init_philosophers(t_ms *ms, pthread_mutex_t *forks, char **argv)
 		else
 			ms[i].fork_left = &forks[i - 1];
 		ms[i].fork_right = &forks[i];
+		if (i % 2)
+		{
+			ms[i].fork_left = &forks[i];
+			ms[i].fork_right = &forks[i - 1];
+		}
 		init_philo(&ms[i], argv);
 		ms[i].start = get_time();
 		i++;
@@ -105,12 +61,11 @@ int init_forks(pthread_mutex_t *forks, char **argv)
 	int	i;
 
 	i = 0;
-	while (i < ft_atoi(argv[1]))
+	while (i <= ft_atoi(argv[1]))
 	{
 		pthread_mutex_init(&forks[i], NULL);
 		i++;
 	}
-	pthread_mutex_init(&mutex, NULL);
 	return (0);
 	
 }
@@ -129,6 +84,7 @@ int main(int argc, char **argv)
 	init_forks(forks, argv);
 	init_philosophers(ms, forks, argv);
 	create_threads(ms, &philo);
+	destroy_threads(forks, argv);
 	printf("Works\n");
 	return (0);
 }

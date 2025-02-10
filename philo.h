@@ -25,5 +25,7 @@ typedef struct s_philosopher {
 
 int     ft_atoi(const char *str);
 size_t  get_time();
+void    *philosopher(void *ptr);
+void	destroy_threads(pthread_mutex_t *forks, char **argv);
 
 #endif

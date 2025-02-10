@@ -1,6 +1,8 @@
 NAME = philo
 
 SOURCES =	main.c \
+		thread.c \
+		free.c	\
 		utils.c
 		  
 HEADF	=	philo.h

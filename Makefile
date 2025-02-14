@@ -3,6 +3,7 @@ NAME = philo
 SOURCES =	main.c \
 		thread.c \
 		free.c	\
+		monitor.c \
 		utils.c
 		  
 HEADF	=	philo.h

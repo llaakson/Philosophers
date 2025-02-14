@@ -1,56 +1,67 @@
 #include "philo.h"
 
-int create_threads(t_ms *ms, t_philosopher *pp)
+int create_threads(t_philosopher *pp)
 {
 	int i;
 
 	i = 0;
-	while (i < pp->philos[0].number_of_philosophers) 
+	pthread_create(&pp->dead_check, NULL, &monitor, pp);
+	while (i < pp->number_of_philosophers) 
 	{
-		pthread_create(&pp->philos[i].thread, NULL, &philosopher, &pp->philos[i]);
+		pthread_create(&pp->ms[i].thread, NULL, &philosopher, &pp->ms[i]);
 		//printf("%d is threading\n", pp->philos[i].name);
 		i++;
 	}
 	i = 0;
-	while (i < ms->number_of_philosophers)
+	while (i < pp->number_of_philosophers)
 	{
-		pthread_join(pp->philos[i].thread, NULL);
+		pthread_join(pp->ms[i].thread, NULL);
 		i++;
 	}
+	if (pthread_join(pp->dead_check, NULL) == 1)
+		printf("AAA\n");
 	return (0);
 }
 
-int init_philo(t_ms *ms, char **argv)
+int init_philo(t_philosopher *ms, char **argv, int argc)
 {
 	ms->number_of_philosophers = ft_atoi(argv[1]);
 	ms->time_to_die = ft_atoi(argv[2]);
 	ms->time_to_eat = ft_atoi(argv[3]);
 	ms->time_to_sleep = ft_atoi(argv[4]);
-	ms->number_of_meals = ft_atoi(argv[5]);
-	//printf("Init_philo\n");
+	ms->number_of_meals = 0;
+	if (argc == 6)
+		ms->number_of_meals = ft_atoi(argv[5]);
+	ms->dead = 0;
+	ms->start = get_time() + 1000;
+	pthread_mutex_init(&ms->print_mutex, NULL);
+	pthread_mutex_init(&ms->meal_mutex, NULL);
+	pthread_mutex_init(&ms->death_mutex, NULL);
 	return (ms->time_to_die);
 }
 
-int init_philosophers(t_ms *ms, pthread_mutex_t *forks, char **argv)
+int init_philosophers(t_philosopher *pp, pthread_mutex_t *forks)
 {	
 	int i;
 
 	i = 0;
-	while (i < ft_atoi(argv[1]))
+	pp->ms = malloc(sizeof(t_ms) * pp->number_of_philosophers);
+	while (i < pp->number_of_philosophers)
 	{	
-		ms[i].name = i + 1;
+		pp->ms[i].name = i + 1;
 		if (i == 0)
-			ms[i].fork_left = &forks[ft_atoi(argv[1])];
+			pp->ms[i].fork_left = &forks[pp->number_of_philosophers];
 		else
-			ms[i].fork_left = &forks[i - 1];
-		ms[i].fork_right = &forks[i];
+			pp->ms[i].fork_left = &forks[i - 1];
+		pp->ms[i].fork_right = &forks[i];
 		if (i % 2)
 		{
-			ms[i].fork_left = &forks[i];
-			ms[i].fork_right = &forks[i - 1];
+			pp->ms[i].fork_left = &forks[i];
+			pp->ms[i].fork_right = &forks[i - 1];
 		}
-		init_philo(&ms[i], argv);
-		ms[i].start = get_time();
+		pp->ms[i].table = pp;
+		pp->ms[i].meals = 0;
+		pp->ms[i].last_meal = pp->start;
 		i++;
 	}
 	return (0);
@@ -71,9 +82,7 @@ int init_forks(pthread_mutex_t *forks, char **argv)
 }
 int main(int argc, char **argv)
 {
-	t_ms ms[200];
-	t_philosopher philo;
-	philo.philos = ms;
+	t_philosopher table;
 	pthread_mutex_t forks[200];
 
 	if (argc <= 4 || argc >= 7)
@@ -81,9 +90,10 @@ int main(int argc, char **argv)
 		write(2, "Error ac!\n", 10);
 		return (1);
 	}
+	init_philo(&table, argv, argc);
 	init_forks(forks, argv);
-	init_philosophers(ms, forks, argv);
-	create_threads(ms, &philo);
+	init_philosophers(&table, forks);
+	create_threads(&table);
 	destroy_threads(forks, argv);
 	printf("Works\n");
 	return (0);

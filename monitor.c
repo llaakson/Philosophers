@@ -6,7 +6,7 @@
 /*   By: llaakson <llaakson@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/14 05:45:38 by llaakson          #+#    #+#             */
-/*   Updated: 2025/02/15 14:37:05 by llaakson         ###   ########.fr       */
+/*   Updated: 2025/02/15 18:53:44 by llaakson         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int check_meals(t_philosopher *pp)
 	i = 0;
 	while (i < pp->number_of_philosophers)
 	{
-		//usleep(500);
+		usleep(500);
 		pthread_mutex_lock(&pp->meal_mutex);
 		if (pp->ms[i].meals >= pp->number_of_meals)
 		{
@@ -50,7 +50,7 @@ int	check_pulse(t_philosopher *pp)
 	i = 0;
 	while (i < pp->number_of_philosophers)
 	{
-		//usleep(500);
+		usleep(500);
 		pthread_mutex_lock(&pp->meal_mutex);
 		time = get_time() - pp->ms[i].last_meal;
 		pthread_mutex_unlock(&pp->meal_mutex);
@@ -60,7 +60,7 @@ int	check_pulse(t_philosopher *pp)
 			pp->dead = 1;
 			pthread_mutex_unlock(&pp->death_mutex);
 			pthread_mutex_lock(&pp->print_mutex);
-			printf("%d Died %zu\n", pp->ms[i].name, time);
+			printf("%d died %zu\n", pp->ms[i].name, time);
 			pthread_mutex_unlock(&pp->print_mutex);
 			return (1);
 		}

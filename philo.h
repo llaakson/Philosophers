@@ -16,6 +16,7 @@ typedef struct s_philosopher {
 	int number_of_philosophers;
 	int number_of_meals;
 	size_t  start;
+	pthread_mutex_t *forks;
 	pthread_t dead_check;
 	pthread_mutex_t print_mutex;
 	pthread_mutex_t meal_mutex;
@@ -35,7 +36,7 @@ typedef struct s_ms {
 int     ft_atoi(const char *str);
 size_t  get_time();
 void    *philosopher(void *ptr);
-void	destroy_threads(pthread_mutex_t *forks, char **argv);
+void    destroy_threads(t_philosopher *pp);
 void    *monitor(void *ptr);
 int ft_isdigit(int c);
 void philo_printf(char *str, int name, size_t time, t_philosopher *table);

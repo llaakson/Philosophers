@@ -45,7 +45,15 @@ int	ft_isdigit(int c)
 
 void philo_printf(char *str, int name, size_t time, t_philosopher *table)
 {
-	pthread_mutex_lock(&table->print_mutex);
-	printf("%zu %d %s\n", time, name, str);
-	pthread_mutex_unlock(&table->print_mutex);
+	pthread_mutex_lock(&table->death_mutex);
+	if (table->dead == 0)
+	{	
+		pthread_mutex_unlock(&table->death_mutex);
+		pthread_mutex_lock(&table->print_mutex);
+		printf("%zu %d %s\n", time, name, str);
+		pthread_mutex_unlock(&table->print_mutex);
+		return ;
+	}
+	pthread_mutex_unlock(&table->death_mutex);
+	return ;
 }

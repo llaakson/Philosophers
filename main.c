@@ -33,7 +33,7 @@ int init_philo(t_philosopher *ms, char **argv, int argc)
 	if (argc == 6)
 		ms->number_of_meals = ft_atoi(argv[5]);
 	ms->dead = 0;
-	ms->start = get_time() + 1000;
+	ms->start = get_time() + 2000;
 	pthread_mutex_init(&ms->print_mutex, NULL);
 	pthread_mutex_init(&ms->meal_mutex, NULL);
 	pthread_mutex_init(&ms->death_mutex, NULL);
@@ -83,7 +83,7 @@ int init_forks(pthread_mutex_t *forks, char **argv)
 int main(int argc, char **argv)
 {
 	t_philosopher table;
-	pthread_mutex_t forks[200];
+	pthread_mutex_t forks[220];
 
 	if (argc <= 4 || argc >= 7)
 	{

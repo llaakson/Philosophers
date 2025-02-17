@@ -4,7 +4,8 @@ SOURCES =	main.c \
 		thread.c \
 		free.c	\
 		monitor.c \
-		utils.c
+		utils.c \
+		input.c 
 		  
 HEADF	=	philo.h
 

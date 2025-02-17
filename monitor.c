@@ -73,9 +73,7 @@ int	check_pulse(t_philosopher *pp)
 void    *monitor(void *ptr)
 {
 	t_philosopher *pp;
-	int i;
-	
-	i = 0;
+
 	pp = (t_philosopher *)ptr;
 	while (get_time() < pp->start)
 		usleep(100);

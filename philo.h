@@ -5,6 +5,7 @@
 # include <unistd.h>
 # include <sys/time.h>
 # include <stdlib.h>
+# include <limits.h>
 
 typedef struct s_philosopher {
 	struct s_ms	*ms;
@@ -38,7 +39,8 @@ size_t  get_time();
 void    *philosopher(void *ptr);
 void    destroy_threads(t_philosopher *pp);
 void    *monitor(void *ptr);
-int ft_isdigit(int c);
+int     check_input(int argc, char **argv);
 void philo_printf(char *str, int name, size_t time, t_philosopher *table);
+long    ft_long_atoi(const char *str);
 
 #endif

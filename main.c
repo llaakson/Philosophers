@@ -17,33 +17,44 @@ int create_threads(t_philosopher *pp)
 	int i;
 
 	i = 0;
-	pthread_create(&pp->dead_check, NULL, &monitor, pp);
+	if (pthread_create(&pp->dead_check, NULL, &monitor, pp) != 0)
+		return (1);
 	while (i < pp->number_of_philosophers) 
 	{
-		pthread_create(&pp->ms[i].thread, NULL, &philosopher, &pp->ms[i]);
-		//printf("%d is threading\n", pp->philos[i].name);
+		if (pthread_create(&pp->ms[i].thread, NULL, &philosopher, &pp->ms[i]) != 0)
+		{
+			while (--i >= 0)
+				pthread_detach(&pp->ms[i].thread);
+			return (1);
+		}
 		i++;
 	}
 	i = 0;
 	while (i < pp->number_of_philosophers)
 	{
-		pthread_join(pp->ms[i].thread, NULL);
+		if (pthread_join(pp->ms[i].thread, NULL) != 0)
+		{
+			while (--i >= 0)
+				pthread_detach(&pp->ms[i].thread);
+			pthread_detach(&pp->dead_check);
+			return (1);
+		}
 		i++;
 	}
-	if (pthread_join(pp->dead_check, NULL) == 1)
-		printf("AAA\n");
+	if (pthread_join(pp->dead_check, NULL) != 0)
+		printf("Failed to join thread\n");
 	return (0);
 }
 
 int init_philo(t_philosopher *ms, char **argv, int argc)
 {
-	ms->number_of_philosophers = ft_atoi(argv[1]);
-	ms->time_to_die = ft_atoi(argv[2]);
-	ms->time_to_eat = ft_atoi(argv[3]);
-	ms->time_to_sleep = ft_atoi(argv[4]);
+	ms->number_of_philosophers = ft_long_atoi(argv[1]);
+	ms->time_to_die = ft_long_atoi(argv[2]);
+	ms->time_to_eat = ft_long_atoi(argv[3]);
+	ms->time_to_sleep = ft_long_atoi(argv[4]);
 	ms->number_of_meals = 0;
 	if (argc == 6)
-		ms->number_of_meals = ft_atoi(argv[5]);
+		ms->number_of_meals = ft_long_atoi(argv[5]);
 	ms->dead = 0;
 	ms->start = get_time() + 1000;
 	return (0);
@@ -115,7 +126,15 @@ int init_forks(t_philosopher *pp)
 	}
 	while (i < pp->number_of_philosophers)
 	{
-		pthread_mutex_init(&pp->forks[i], NULL);
+		if (pthread_mutex_init(&pp->forks[i], NULL) != 0)
+		{
+			while (i-- >= 0)
+				pthread_mutex_destroy(&pp->forks[i]);
+			pthread_mutex_destroy(&pp->meal_mutex);
+			pthread_mutex_destroy(&pp->print_mutex);
+			pthread_mutex_destroy(&pp->print_mutex);
+			return (1);
+		}
 		i++;
 	}
 	return (0);
@@ -130,6 +149,11 @@ int main(int argc, char **argv)
 		write(2, "Error ac!\n", 10);
 		return (1);
 	}
+	if (check_input(argc, argv))
+	{	
+		printf("NUMBER PLZ\n");
+		return (1);
+	}
 	if (init_philo(&table, argv, argc))
 		return (1);
 	if (init_forks(&table))
@@ -139,7 +163,11 @@ int main(int argc, char **argv)
 		destroy_threads(&table);
 		return (1);
 	}
-	create_threads(&table);
+	if (create_threads(&table))
+	{
+		destroy_threads(&table);
+		return (1);
+	}
 	destroy_threads(&table);
 	printf("Works\n");
 	return (0);

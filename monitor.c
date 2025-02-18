@@ -12,16 +12,10 @@
 
 #include "philo.h"
 
-int check_meals(t_philosopher *pp)
+int	check_meals(t_philosopher *pp, int i, int check)
 {
-	int i;
-	int check;
-
-	check = 0;
-	i = 0;
 	while (i < pp->number_of_philosophers)
 	{
-		usleep(500);
 		pthread_mutex_lock(&pp->meal_mutex);
 		if (pp->ms[i].meals >= pp->number_of_meals)
 		{
@@ -42,15 +36,11 @@ int check_meals(t_philosopher *pp)
 	pthread_mutex_unlock(&pp->death_mutex);
 	return (pp->dead);
 }
-int	check_pulse(t_philosopher *pp)
+
+int	check_pulse(t_philosopher *pp, int i, size_t time)
 {
-	int i;
-	size_t time;
-	
-	i = 0;
 	while (i < pp->number_of_philosophers)
 	{
-		usleep(500);
 		pthread_mutex_lock(&pp->meal_mutex);
 		time = get_time() - pp->ms[i].last_meal;
 		pthread_mutex_unlock(&pp->meal_mutex);
@@ -70,19 +60,19 @@ int	check_pulse(t_philosopher *pp)
 	return (0);
 }
 
-void    *monitor(void *ptr)
+void	*monitor(void *ptr)
 {
-	t_philosopher *pp;
+	t_philosopher	*pp;
 
 	pp = (t_philosopher *)ptr;
 	while (get_time() < pp->start)
 		usleep(100);
 	while (1)
 	{
-		if (check_pulse(pp))
+		if (check_pulse(pp, 0, 0))
 			return (NULL);
 		if (pp->number_of_meals != 0)
-			if (check_meals(pp))
+			if (check_meals(pp, 0, 0))
 				return (NULL);
 	}
 	return (NULL);

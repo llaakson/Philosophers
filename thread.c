@@ -2,26 +2,25 @@
 
 void	philo_think(t_ms *ms)
 {
-	size_t time;
+	size_t	time;
 
 	time = get_time() - ms->table->start;
 	philo_printf("is thinking", ms->name, time, ms->table);
-	usleep(1000);
 }
 
 void	philo_sleep(t_ms *ms)
 {
-	size_t time;
+	size_t	time;
 
 	time = get_time() - ms->table->start;
 	philo_printf("is sleeping", ms->name, time, ms->table);
-	usleep(ms->table->time_to_sleep * 1000);
+	ft_usleep(ms->table->time_to_sleep);
 }
 
-void philo_eat(t_ms *ms)
+void	philo_eat(t_ms *ms)
 {
-	size_t time;
-	
+	size_t	time;
+
 	pthread_mutex_lock(ms->fork_right);
 	time = get_time() - ms->table->start;
 	philo_printf("has taken a fork", ms->name, time, ms->table);
@@ -33,25 +32,25 @@ void philo_eat(t_ms *ms)
 	ms->last_meal = get_time();
 	ms->meals += 1;
 	pthread_mutex_unlock(&ms->table->meal_mutex);
-	usleep(ms->table->time_to_eat * 1000);
+	ft_usleep(ms->table->time_to_eat);
 	pthread_mutex_unlock(ms->fork_left);
 	pthread_mutex_unlock(ms->fork_right);
 }
 
-void philo_one(t_ms *ms)
+void	philo_one(t_ms *ms)
 {
-	size_t time;
+	size_t	time;
 
 	pthread_mutex_lock(ms->fork_right);
 	time = get_time() - ms->table->start;
 	philo_printf("has taken a fork", ms->name, time, ms->table);
-	usleep(ms->table->time_to_die * 1000);
+	ft_usleep(ms->table->time_to_die);
 	pthread_mutex_unlock(ms->fork_right);
 }
 
 void	*philosopher(void *ptr)
 {
-	t_ms *ms;
+	t_ms	*ms;
 
 	ms = (t_ms *)ptr;
 	while (get_time() < ms->table->start)
@@ -68,8 +67,8 @@ void	*philosopher(void *ptr)
 	{
 		pthread_mutex_unlock(&ms->table->death_mutex);
 		philo_eat(ms);
-		philo_think(ms);
 		philo_sleep(ms);
+		philo_think(ms);
 		pthread_mutex_lock(&ms->table->death_mutex);
 	}
 	pthread_mutex_unlock(&ms->table->death_mutex);

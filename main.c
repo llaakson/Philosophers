@@ -12,67 +12,10 @@
 
 #include "philo.h"
 
-int create_threads(t_philosopher *pp)
+int	init_philosophers(t_philosopher *pp, int i)
 {
-	int i;
-
-	i = 0;
-	if (pthread_create(&pp->dead_check, NULL, &monitor, pp) != 0)
-		return (1);
-	while (i < pp->number_of_philosophers) 
-	{
-		if (pthread_create(&pp->ms[i].thread, NULL, &philosopher, &pp->ms[i]) != 0)
-		{
-			while (--i >= 0)
-				pthread_detach(&pp->ms[i].thread);
-			return (1);
-		}
-		i++;
-	}
-	i = 0;
 	while (i < pp->number_of_philosophers)
 	{
-		if (pthread_join(pp->ms[i].thread, NULL) != 0)
-		{
-			while (--i >= 0)
-				pthread_detach(&pp->ms[i].thread);
-			pthread_detach(&pp->dead_check);
-			return (1);
-		}
-		i++;
-	}
-	if (pthread_join(pp->dead_check, NULL) != 0)
-		printf("Failed to join thread\n");
-	return (0);
-}
-
-int init_philo(t_philosopher *ms, char **argv, int argc)
-{
-	ms->number_of_philosophers = ft_long_atoi(argv[1]);
-	ms->time_to_die = ft_long_atoi(argv[2]);
-	ms->time_to_eat = ft_long_atoi(argv[3]);
-	ms->time_to_sleep = ft_long_atoi(argv[4]);
-	ms->number_of_meals = 0;
-	if (argc == 6)
-		ms->number_of_meals = ft_long_atoi(argv[5]);
-	ms->dead = 0;
-	ms->start = get_time() + 1000;
-	return (0);
-}
-
-int init_philosophers(t_philosopher *pp)
-{	
-	int i;
-
-	i = 0;
-	pp->ms = malloc(sizeof(t_ms) * pp->number_of_philosophers);
-	if (pp->ms == NULL)
-	{
-		printf("Error: fork malloc failed\n");
-		return (1);
-	}
-	while (i < pp->number_of_philosophers)
-	{	
 		pp->ms[i].name = i + 1;
 		if (i % 2 == 0)
 		{
@@ -95,11 +38,8 @@ int init_philosophers(t_philosopher *pp)
 	return (0);
 }
 
-int init_forks(t_philosopher *pp)
+int	init_mutexes(t_philosopher *pp)
 {
-	int	i;
-
-	i = 0;
 	if (pthread_mutex_init(&pp->print_mutex, NULL) != 0)
 	{
 		printf("Error: mutex init failed\n");
@@ -118,6 +58,16 @@ int init_forks(t_philosopher *pp)
 		pthread_mutex_destroy(&pp->print_mutex);
 		return (1);
 	}
+	return (0);
+}
+
+int	init_forks(t_philosopher *pp)
+{
+	int	i;
+
+	i = 0;
+	if (init_mutexes(pp))
+		return (1);
 	pp->forks = malloc(sizeof(pthread_mutex_t) * pp->number_of_philosophers);
 	if (pp->forks == NULL)
 	{
@@ -138,11 +88,34 @@ int init_forks(t_philosopher *pp)
 		i++;
 	}
 	return (0);
-	
 }
-int main(int argc, char **argv)
+
+int	init_philo(t_philosopher *table, char **argv, int argc)
 {
-	t_philosopher table;
+	table->number_of_philosophers = ft_long_atoi(argv[1]);
+	table->time_to_die = ft_long_atoi(argv[2]);
+	table->time_to_eat = ft_long_atoi(argv[3]);
+	table->time_to_sleep = ft_long_atoi(argv[4]);
+	table->number_of_meals = 0;
+	if (argc == 6)
+		table->number_of_meals = ft_long_atoi(argv[5]);
+	table->dead = 0;
+	table->start = get_time() + 1000;
+	table->ms = malloc(sizeof(t_ms) * table->number_of_philosophers);
+	if (table->ms == NULL)
+	{
+		printf("Error: fork malloc failed\n");
+		return (1);
+	}
+	if (init_forks(table))
+		return (1);
+	init_philosophers(table, 0);
+	return (0);
+}
+
+int	main(int argc, char **argv)
+{
+	t_philosopher	table;
 
 	if (argc <= 4 || argc >= 7)
 	{
@@ -150,25 +123,17 @@ int main(int argc, char **argv)
 		return (1);
 	}
 	if (check_input(argc, argv))
-	{	
+	{
 		printf("NUMBER PLZ\n");
 		return (1);
 	}
 	if (init_philo(&table, argv, argc))
 		return (1);
-	if (init_forks(&table))
-		return (1);
-	if (init_philosophers(&table))
-	{
-		destroy_threads(&table);
-		return (1);
-	}
 	if (create_threads(&table))
 	{
 		destroy_threads(&table);
 		return (1);
 	}
 	destroy_threads(&table);
-	printf("Works\n");
 	return (0);
 }

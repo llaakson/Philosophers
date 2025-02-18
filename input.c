@@ -38,14 +38,14 @@ static int	ft_isnumber(char *str)
 
 int	check_input(int argc, char **argv)
 {
-	int i;
+	int	i;
 	long	n;
 
 	i = 1;
 	while (i < argc)
 	{
 		if (!(ft_isnumber(argv[i])))
-				return (1);
+			return (1);
 		n = ft_long_atoi(argv[i]);
 		if (!(n > 0 && n <= INT_MAX))
 			return (1);

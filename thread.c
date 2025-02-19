@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   thread.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: llaakson <llaakson@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/19 12:22:54 by llaakson          #+#    #+#             */
+/*   Updated: 2025/02/19 18:43:54 by llaakson         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 void	philo_think(t_ms *ms)
@@ -14,7 +26,7 @@ void	philo_sleep(t_ms *ms)
 
 	time = get_time() - ms->table->start;
 	philo_printf("is sleeping", ms->name, time, ms->table);
-	ft_usleep(ms->table->time_to_sleep);
+	ft_usleep(ms->table->time_to_sleep, ms);
 }
 
 void	philo_eat(t_ms *ms)
@@ -32,7 +44,7 @@ void	philo_eat(t_ms *ms)
 	ms->last_meal = get_time();
 	ms->meals += 1;
 	pthread_mutex_unlock(&ms->table->meal_mutex);
-	ft_usleep(ms->table->time_to_eat);
+	ft_usleep(ms->table->time_to_eat, ms);
 	pthread_mutex_unlock(ms->fork_left);
 	pthread_mutex_unlock(ms->fork_right);
 }
@@ -44,7 +56,7 @@ void	philo_one(t_ms *ms)
 	pthread_mutex_lock(ms->fork_right);
 	time = get_time() - ms->table->start;
 	philo_printf("has taken a fork", ms->name, time, ms->table);
-	ft_usleep(ms->table->time_to_die);
+	ft_usleep(ms->table->time_to_die, ms);
 	pthread_mutex_unlock(ms->fork_right);
 }
 
@@ -60,15 +72,15 @@ void	*philosopher(void *ptr)
 		philo_one(ms);
 		return (NULL);
 	}
-	if (ms->name % 2)
+	if (ms->name % 2 != 0)
 		philo_sleep(ms);
 	pthread_mutex_lock(&ms->table->death_mutex);
 	while (ms->table->dead == 0)
 	{
 		pthread_mutex_unlock(&ms->table->death_mutex);
+		philo_think(ms);
 		philo_eat(ms);
 		philo_sleep(ms);
-		philo_think(ms);
 		pthread_mutex_lock(&ms->table->death_mutex);
 	}
 	pthread_mutex_unlock(&ms->table->death_mutex);

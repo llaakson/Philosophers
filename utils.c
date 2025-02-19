@@ -1,12 +1,28 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: llaakson <llaakson@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/19 12:23:34 by llaakson          #+#    #+#             */
+/*   Updated: 2025/02/19 18:41:37 by llaakson         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-size_t	ft_usleep(size_t time)
+size_t	ft_usleep(size_t time, t_ms *ms)
 {
 	size_t	start;
 
 	start = get_time();
 	while ((get_time() - start) < time)
-		usleep(500);
+	{
+		if (ms->table->dead == 1)
+			break ;
+		usleep(100);
+	}
 	return (0);
 }
 

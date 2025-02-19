@@ -6,7 +6,7 @@
 /*   By: llaakson <llaakson@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 19:37:52 by llaakson          #+#    #+#             */
-/*   Updated: 2025/02/15 19:37:56 by llaakson         ###   ########.fr       */
+/*   Updated: 2025/02/19 20:08:46 by llaakson         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@ int	init_philosophers(t_philosopher *pp, int i)
 		if (i % 2 == 0)
 		{
 			if (i == 0)
-				pp->ms[i].fork_left = &pp->forks[pp->number_of_philosophers - 1];
+				pp->ms[i].fork_left
+					= &pp->forks[pp->number_of_philosophers - 1];
 			else
 				pp->ms[i].fork_left = &pp->forks[i - 1];
 			pp->ms[i].fork_right = &pp->forks[i];
@@ -41,19 +42,14 @@ int	init_philosophers(t_philosopher *pp, int i)
 int	init_mutexes(t_philosopher *pp)
 {
 	if (pthread_mutex_init(&pp->print_mutex, NULL) != 0)
-	{
-		printf("Error: mutex init failed\n");
 		return (1);
-	}
 	if (pthread_mutex_init(&pp->meal_mutex, NULL) != 0)
 	{
-		printf("Error: mutex init failed\n");
 		pthread_mutex_destroy(&pp->print_mutex);
 		return (1);
 	}
 	if (pthread_mutex_init(&pp->death_mutex, NULL) != 0)
 	{
-		printf("Error: mutex init failed\n");
 		pthread_mutex_destroy(&pp->meal_mutex);
 		pthread_mutex_destroy(&pp->print_mutex);
 		return (1);
@@ -61,11 +57,8 @@ int	init_mutexes(t_philosopher *pp)
 	return (0);
 }
 
-int	init_forks(t_philosopher *pp)
+int	init_forks(t_philosopher *pp, int i)
 {
-	int	i;
-
-	i = 0;
 	if (init_mutexes(pp))
 		return (1);
 	pp->forks = malloc(sizeof(pthread_mutex_t) * pp->number_of_philosophers);
@@ -78,11 +71,11 @@ int	init_forks(t_philosopher *pp)
 	{
 		if (pthread_mutex_init(&pp->forks[i], NULL) != 0)
 		{
-			while (i-- >= 0)
+			while (--i >= 0)
 				pthread_mutex_destroy(&pp->forks[i]);
 			pthread_mutex_destroy(&pp->meal_mutex);
 			pthread_mutex_destroy(&pp->print_mutex);
-			pthread_mutex_destroy(&pp->print_mutex);
+			pthread_mutex_destroy(&pp->death_mutex);
 			return (1);
 		}
 		i++;
@@ -101,14 +94,19 @@ int	init_philo(t_philosopher *table, char **argv, int argc)
 		table->number_of_meals = ft_long_atoi(argv[5]);
 	table->dead = 0;
 	table->start = get_time() + 1000;
+	table->forks = NULL;
 	table->ms = malloc(sizeof(t_ms) * table->number_of_philosophers);
 	if (table->ms == NULL)
 	{
 		printf("Error: fork malloc failed\n");
 		return (1);
 	}
-	if (init_forks(table))
+	if (init_forks(table, 0))
+	{
+		printf("Error: mutex init failed\n");
+		free_philoforks(table);
 		return (1);
+	}
 	init_philosophers(table, 0);
 	return (0);
 }
@@ -119,12 +117,12 @@ int	main(int argc, char **argv)
 
 	if (argc <= 4 || argc >= 7)
 	{
-		write(2, "Error ac!\n", 10);
+		printf("Error: Incorrect argument count give 5 to 6 arguments\n");
 		return (1);
 	}
 	if (check_input(argc, argv))
 	{
-		printf("NUMBER PLZ\n");
+		printf("Error: Use only positive integers\n");
 		return (1);
 	}
 	if (init_philo(&table, argv, argc))
@@ -132,8 +130,10 @@ int	main(int argc, char **argv)
 	if (create_threads(&table))
 	{
 		destroy_threads(&table);
+		free_philoforks(&table);
 		return (1);
 	}
 	destroy_threads(&table);
+	free_philoforks(&table);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: llaakson <llaakson@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/14 05:45:38 by llaakson          #+#    #+#             */
-/*   Updated: 2025/02/15 18:53:44 by llaakson         ###   ########.fr       */
+/*   Updated: 2025/02/19 16:01:05 by llaakson         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ int	check_pulse(t_philosopher *pp, int i, size_t time)
 			pp->dead = 1;
 			pthread_mutex_unlock(&pp->death_mutex);
 			pthread_mutex_lock(&pp->print_mutex);
-			printf("%d died %zu\n", pp->ms[i].name, time);
+			printf("%zu %d died\n", time, pp->ms[i].name);
 			pthread_mutex_unlock(&pp->print_mutex);
 			return (1);
 		}

@@ -6,13 +6,25 @@
 /*   By: llaakson <llaakson@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 19:28:38 by llaakson          #+#    #+#             */
-/*   Updated: 2025/02/15 19:30:10 by llaakson         ###   ########.fr       */
+/*   Updated: 2025/02/19 12:43:23 by llaakson         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-
-
 #include "philo.h"
+
+void	free_philoforks(t_philosopher *pp)
+{	
+	if (pp->forks)
+	{
+		free(pp->forks);
+		pp->forks = NULL;
+	}
+	if (pp->ms)
+	{
+		free (pp->ms);
+		pp->ms = NULL;
+	}
+}
 
 void	destroy_threads(t_philosopher *pp)
 {
@@ -26,12 +38,5 @@ void	destroy_threads(t_philosopher *pp)
 	{
 		pthread_mutex_destroy(&pp->forks[i]);
 		i++;
-	}
-	free(pp->forks);
-	pp->forks = NULL;
-	if (pp->ms)
-	{
-		free (pp->ms);
-		pp->ms = NULL;
 	}
 }

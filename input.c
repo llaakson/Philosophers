@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   input.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: llaakson <llaakson@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/19 12:23:55 by llaakson          #+#    #+#             */
+/*   Updated: 2025/02/19 12:24:31 by llaakson         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 long	ft_long_atoi(const char *str)
@@ -38,7 +50,7 @@ static int	ft_isnumber(char *str)
 
 int	check_input(int argc, char **argv)
 {
-	int	i;
+	int		i;
 	long	n;
 
 	i = 1;

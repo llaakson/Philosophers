@@ -42,9 +42,11 @@ void	philo_eat(t_philo *philo)
 	philo_printf("is eating", philo->name, time, philo->table);
 	pthread_mutex_lock(&philo->table->meal_mutex);
 	philo->last_meal = get_time();
-	philo->meals += 1;
 	pthread_mutex_unlock(&philo->table->meal_mutex);
 	ft_usleep(philo->table->time_to_eat, philo);
+	pthread_mutex_lock(&philo->table->meal_mutex);
+	philo->meals += 1;
+	pthread_mutex_unlock(&philo->table->meal_mutex);
 	pthread_mutex_unlock(philo->fork_left);
 	pthread_mutex_unlock(philo->fork_right);
 }

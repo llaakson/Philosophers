@@ -19,8 +19,8 @@
 # include <stdlib.h>
 # include <limits.h>
 
-typedef struct s_philosopher {
-	struct s_ms		*ms;
+typedef struct s_table {
+	struct s_philo		*philo;
 	int				end;
 	size_t			time_to_die;
 	size_t			time_to_eat;
@@ -34,28 +34,28 @@ typedef struct s_philosopher {
 	pthread_mutex_t	print_mutex;
 	pthread_mutex_t	meal_mutex;
 	pthread_mutex_t	death_mutex;
-}	t_philosopher;
+}	t_table;
 
-typedef struct s_ms {
+typedef struct s_philo {
 	int				name;
 	int				meals;
 	size_t			last_meal;
 	pthread_t		thread;
 	pthread_mutex_t	*fork_left;
 	pthread_mutex_t	*fork_right;
-	t_philosopher	*table;
-}	t_ms;
+	t_table	*table;
+}	t_philo;
 
 int		ft_atoi(const char *str);
 size_t	get_time(void);
 void	*philosopher(void *ptr);
-void	destroy_threads(t_philosopher *pp);
+void	destroy_threads(t_table *pp);
 void	*monitor(void *ptr);
 int		check_input(int argc, char **argv);
-void	philo_printf(char *str, int name, size_t time, t_philosopher *table);
+void	philo_printf(char *str, int name, size_t time, t_table *table);
 long	ft_long_atoi(const char *str);
-size_t	ft_usleep(size_t time, t_ms *ms);
-int		create_threads(t_philosopher *pp);
-void	free_philoforks(t_philosopher *pp);
+size_t	ft_usleep(size_t time, t_philo *philo);
+int		create_threads(t_table *pp);
+void	free_philoforks(t_table *pp);
 
 #endif

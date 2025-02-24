@@ -12,70 +12,70 @@
 
 #include "philo.h"
 
-int	init_philosophers(t_philosopher *pp, int i)
+int	init_tables(t_table *table, int i)
 {
-	while (i < pp->number_of_philosophers)
+	while (i < table->number_of_philosophers)
 	{
-		pp->ms[i].name = i + 1;
+		table->philo[i].name = i + 1;
 		if (i % 2 == 0)
 		{
 			if (i == 0)
-				pp->ms[i].fork_left
-					= &pp->forks[pp->number_of_philosophers - 1];
+				table->philo[i].fork_left
+					= &table->forks[table->number_of_philosophers - 1];
 			else
-				pp->ms[i].fork_left = &pp->forks[i - 1];
-			pp->ms[i].fork_right = &pp->forks[i];
+				table->philo[i].fork_left = &table->forks[i - 1];
+			table->philo[i].fork_right = &table->forks[i];
 		}
 		else
 		{
-			pp->ms[i].fork_left = &pp->forks[i - 1];
-			pp->ms[i].fork_right = &pp->forks[i];
+			table->philo[i].fork_left = &table->forks[i - 1];
+			table->philo[i].fork_right = &table->forks[i];
 		}
-		pp->ms[i].table = pp;
-		pp->ms[i].meals = 0;
-		pp->ms[i].last_meal = pp->start;
+		table->philo[i].table = table;
+		table->philo[i].meals = 0;
+		table->philo[i].last_meal = table->start;
 		i++;
 	}
 	return (0);
 }
 
-int	init_mutexes(t_philosopher *pp)
+int	init_mutexes(t_table *table)
 {
-	if (pthread_mutex_init(&pp->print_mutex, NULL) != 0)
+	if (pthread_mutex_init(&table->print_mutex, NULL) != 0)
 		return (1);
-	if (pthread_mutex_init(&pp->meal_mutex, NULL) != 0)
+	if (pthread_mutex_init(&table->meal_mutex, NULL) != 0)
 	{
-		pthread_mutex_destroy(&pp->print_mutex);
+		pthread_mutex_destroy(&table->print_mutex);
 		return (1);
 	}
-	if (pthread_mutex_init(&pp->death_mutex, NULL) != 0)
+	if (pthread_mutex_init(&table->death_mutex, NULL) != 0)
 	{
-		pthread_mutex_destroy(&pp->meal_mutex);
-		pthread_mutex_destroy(&pp->print_mutex);
+		pthread_mutex_destroy(&table->meal_mutex);
+		pthread_mutex_destroy(&table->print_mutex);
 		return (1);
 	}
 	return (0);
 }
 
-int	init_forks(t_philosopher *pp, int i)
+int	init_forks(t_table *table, int i)
 {
-	if (init_mutexes(pp))
+	if (init_mutexes(table))
 		return (1);
-	pp->forks = malloc(sizeof(pthread_mutex_t) * pp->number_of_philosophers);
-	if (pp->forks == NULL)
+	table->forks = malloc(sizeof(pthread_mutex_t) * table->number_of_philosophers);
+	if (table->forks == NULL)
 	{
 		printf("Error: fork malloc failed\n");
 		return (1);
 	}
-	while (i < pp->number_of_philosophers)
+	while (i < table->number_of_philosophers)
 	{
-		if (pthread_mutex_init(&pp->forks[i], NULL) != 0)
+		if (pthread_mutex_init(&table->forks[i], NULL) != 0)
 		{
 			while (--i >= 0)
-				pthread_mutex_destroy(&pp->forks[i]);
-			pthread_mutex_destroy(&pp->meal_mutex);
-			pthread_mutex_destroy(&pp->print_mutex);
-			pthread_mutex_destroy(&pp->death_mutex);
+				pthread_mutex_destroy(&table->forks[i]);
+			pthread_mutex_destroy(&table->meal_mutex);
+			pthread_mutex_destroy(&table->print_mutex);
+			pthread_mutex_destroy(&table->death_mutex);
 			return (1);
 		}
 		i++;
@@ -83,7 +83,7 @@ int	init_forks(t_philosopher *pp, int i)
 	return (0);
 }
 
-int	init_philo(t_philosopher *table, char **argv, int argc)
+int	init_philo(t_table *table, char **argv, int argc)
 {
 	table->number_of_philosophers = ft_long_atoi(argv[1]);
 	table->time_to_die = ft_long_atoi(argv[2]);
@@ -95,8 +95,8 @@ int	init_philo(t_philosopher *table, char **argv, int argc)
 	table->dead = 0;
 	table->start = get_time() + 1000;
 	table->forks = NULL;
-	table->ms = malloc(sizeof(t_ms) * table->number_of_philosophers);
-	if (table->ms == NULL)
+	table->philo = malloc(sizeof(t_philo) * table->number_of_philosophers);
+	if (table->philo == NULL)
 	{
 		printf("Error: fork malloc failed\n");
 		return (1);
@@ -107,13 +107,13 @@ int	init_philo(t_philosopher *table, char **argv, int argc)
 		free_philoforks(table);
 		return (1);
 	}
-	init_philosophers(table, 0);
+	init_tables(table, 0);
 	return (0);
 }
 
 int	main(int argc, char **argv)
 {
-	t_philosopher	table;
+	t_table	table;
 
 	if (argc <= 4 || argc >= 7)
 	{

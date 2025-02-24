@@ -12,14 +12,14 @@
 
 #include "philo.h"
 
-size_t	ft_usleep(size_t time, t_ms *ms)
+size_t	ft_usleep(size_t time, t_philo *philo)
 {
 	size_t	start;
 
 	start = get_time();
 	while ((get_time() - start) < time)
 	{
-		if (ms->table->dead == 1)
+		if (philo->table->dead == 1)
 			break ;
 		usleep(100);
 	}
@@ -34,14 +34,7 @@ size_t	get_time(void)
 	return (current_time.tv_sec * 1000 + current_time.tv_usec / 1000);
 }
 
-int	ft_isdigit(int c)
-{
-	if (c >= '0' && c <= '9')
-		return (1);
-	return (0);
-}
-
-void	philo_printf(char *str, int name, size_t time, t_philosopher *table)
+void	philo_printf(char *str, int name, size_t time, t_table *table)
 {
 	pthread_mutex_lock(&table->death_mutex);
 	if (table->dead == 0)

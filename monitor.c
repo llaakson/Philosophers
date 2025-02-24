@@ -12,49 +12,49 @@
 
 #include "philo.h"
 
-int	check_meals(t_philosopher *pp, int i, int check)
+int	check_meals(t_table *table, int i, int check)
 {
-	while (i < pp->number_of_philosophers)
+	while (i < table->number_of_philosophers)
 	{
-		pthread_mutex_lock(&pp->meal_mutex);
-		if (pp->ms[i].meals >= pp->number_of_meals)
+		pthread_mutex_lock(&table->meal_mutex);
+		if (table->philo[i].meals >= table->number_of_meals)
 		{
 			check = 1;
 		}
 		else
 		{
 			check = 0;
-			pthread_mutex_unlock(&pp->meal_mutex);
+			pthread_mutex_unlock(&table->meal_mutex);
 			break ;
 		}
-		pthread_mutex_unlock(&pp->meal_mutex);
+		pthread_mutex_unlock(&table->meal_mutex);
 		i++;
 	}
-	pthread_mutex_lock(&pp->death_mutex);
+	pthread_mutex_lock(&table->death_mutex);
 	if (check == 1)
-		pp->dead = 1;
-	pthread_mutex_unlock(&pp->death_mutex);
-	return (pp->dead);
+		table->dead = 1;
+	pthread_mutex_unlock(&table->death_mutex);
+	return (table->dead);
 }
 
-int	check_pulse(t_philosopher *pp, int i, size_t time)
+int	check_pulse(t_table *table, int i, size_t time)
 {
-	while (i < pp->number_of_philosophers)
+	while (i < table->number_of_philosophers)
 	{
-		pthread_mutex_lock(&pp->meal_mutex);
-		time = get_time() - pp->ms[i].last_meal;
-		pthread_mutex_unlock(&pp->meal_mutex);
-		pthread_mutex_lock(&pp->death_mutex);
-		if (time > pp->time_to_die)
+		pthread_mutex_lock(&table->meal_mutex);
+		time = get_time() - table->philo[i].last_meal;
+		pthread_mutex_unlock(&table->meal_mutex);
+		pthread_mutex_lock(&table->death_mutex);
+		if (time > table->time_to_die)
 		{
-			pp->dead = 1;
-			pthread_mutex_unlock(&pp->death_mutex);
-			pthread_mutex_lock(&pp->print_mutex);
-			printf("%zu %d died\n", time, pp->ms[i].name);
-			pthread_mutex_unlock(&pp->print_mutex);
+			table->dead = 1;
+			pthread_mutex_unlock(&table->death_mutex);
+			pthread_mutex_lock(&table->print_mutex);
+			printf("%zu %d died\n", time, table->philo[i].name);
+			pthread_mutex_unlock(&table->print_mutex);
 			return (1);
 		}
-		pthread_mutex_unlock(&pp->death_mutex);
+		pthread_mutex_unlock(&table->death_mutex);
 		i++;
 	}
 	return (0);
@@ -62,17 +62,17 @@ int	check_pulse(t_philosopher *pp, int i, size_t time)
 
 void	*monitor(void *ptr)
 {
-	t_philosopher	*pp;
+	t_table	*table;
 
-	pp = (t_philosopher *)ptr;
-	while (get_time() < pp->start)
+	table = (t_table *)ptr;
+	while (get_time() < table->start)
 		usleep(100);
 	while (1)
 	{
-		if (check_pulse(pp, 0, 0))
+		if (check_pulse(table, 0, 0))
 			return (NULL);
-		if (pp->number_of_meals != 0)
-			if (check_meals(pp, 0, 0))
+		if (table->number_of_meals != 0)
+			if (check_meals(table, 0, 0))
 				return (NULL);
 	}
 	return (NULL);

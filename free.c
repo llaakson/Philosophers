@@ -12,31 +12,31 @@
 
 #include "philo.h"
 
-void	free_philoforks(t_philosopher *pp)
+void	free_philoforks(t_table *table)
 {	
-	if (pp->forks)
+	if (table->forks)
 	{
-		free(pp->forks);
-		pp->forks = NULL;
+		free(table->forks);
+		table->forks = NULL;
 	}
-	if (pp->ms)
+	if (table->philo)
 	{
-		free (pp->ms);
-		pp->ms = NULL;
+		free (table->philo);
+		table->philo = NULL;
 	}
 }
 
-void	destroy_threads(t_philosopher *pp)
+void	destroy_threads(t_table *table)
 {
 	int	i;
 
 	i = 0;
-	pthread_mutex_destroy(&pp->print_mutex);
-	pthread_mutex_destroy(&pp->meal_mutex);
-	pthread_mutex_destroy(&pp->death_mutex);
-	while (i < pp->number_of_philosophers)
+	pthread_mutex_destroy(&table->print_mutex);
+	pthread_mutex_destroy(&table->meal_mutex);
+	pthread_mutex_destroy(&table->death_mutex);
+	while (i < table->number_of_philosophers)
 	{
-		pthread_mutex_destroy(&pp->forks[i]);
+		pthread_mutex_destroy(&table->forks[i]);
 		i++;
 	}
 }

@@ -1,18 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   monitor.c                                          :+:      :+:    :+:   */
+/*   table.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: llaakson <llaakson@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/14 05:45:38 by llaakson          #+#    #+#             */
-/*   Updated: 2025/02/19 16:01:05 by llaakson         ###   ########.fr       */
+/*   Updated: 2025/02/25 16:07:34 by llaakson         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	check_meals(t_table *table, int i, int check)
+static int	check_meals(t_table *table, int i, int check)
 {
 	while (i < table->number_of_philosophers)
 	{
@@ -34,10 +34,10 @@ int	check_meals(t_table *table, int i, int check)
 	if (check == 1)
 		table->dead = 1;
 	pthread_mutex_unlock(&table->death_mutex);
-	return (table->dead);
+	return (check);
 }
 
-int	check_pulse(t_table *table, int i, size_t time)
+static int	check_pulse(t_table *table, int i, size_t time)
 {
 	while (i < table->number_of_philosophers)
 	{
@@ -60,7 +60,7 @@ int	check_pulse(t_table *table, int i, size_t time)
 	return (0);
 }
 
-void	*monitor(void *ptr)
+void	*ft_table(void *ptr)
 {
 	t_table	*table;
 

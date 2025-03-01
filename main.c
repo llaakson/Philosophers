@@ -6,13 +6,13 @@
 /*   By: llaakson <llaakson@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 19:37:52 by llaakson          #+#    #+#             */
-/*   Updated: 2025/02/19 20:08:46 by llaakson         ###   ########.fr       */
+/*   Updated: 2025/03/01 21:07:03 by llaakson         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	init_tables(t_table *table, int i)
+static int	init_table(t_table *table, int i)
 {
 	while (i < table->number_of_philosophers)
 	{
@@ -39,17 +39,22 @@ int	init_tables(t_table *table, int i)
 	return (0);
 }
 
-int	init_mutexes(t_table *table)
+static int	init_mutexes(t_table *table)
 {
 	if (pthread_mutex_init(&table->print_mutex, NULL) != 0)
+	{
+		printf("Error: mutex init failed\n");
 		return (1);
+	}
 	if (pthread_mutex_init(&table->meal_mutex, NULL) != 0)
 	{
+		printf("Error: mutex init failed\n");
 		pthread_mutex_destroy(&table->print_mutex);
 		return (1);
 	}
 	if (pthread_mutex_init(&table->death_mutex, NULL) != 0)
 	{
+		printf("Error: mutex init failed\n");
 		pthread_mutex_destroy(&table->meal_mutex);
 		pthread_mutex_destroy(&table->print_mutex);
 		return (1);
@@ -57,16 +62,17 @@ int	init_mutexes(t_table *table)
 	return (0);
 }
 
-int	init_forks(t_table *table, int i)
+static int	init_forks(t_table *table, int i)
 {
-	if (init_mutexes(table))
-		return (1);
-	table->forks = malloc(sizeof(pthread_mutex_t) * table->number_of_philosophers);
+	table->forks = malloc(sizeof(pthread_mutex_t)
+			* table->number_of_philosophers);
 	if (table->forks == NULL)
 	{
 		printf("Error: fork malloc failed\n");
 		return (1);
 	}
+	if (init_mutexes(table))
+		return (1);
 	while (i < table->number_of_philosophers)
 	{
 		if (pthread_mutex_init(&table->forks[i], NULL) != 0)
@@ -76,6 +82,7 @@ int	init_forks(t_table *table, int i)
 			pthread_mutex_destroy(&table->meal_mutex);
 			pthread_mutex_destroy(&table->print_mutex);
 			pthread_mutex_destroy(&table->death_mutex);
+			printf("Error: mutex init failed\n");
 			return (1);
 		}
 		i++;
@@ -83,7 +90,7 @@ int	init_forks(t_table *table, int i)
 	return (0);
 }
 
-int	init_philo(t_table *table, char **argv, int argc)
+static int	init_philo(t_table *table, char **argv, int argc)
 {
 	table->number_of_philosophers = ft_long_atoi(argv[1]);
 	table->time_to_die = ft_long_atoi(argv[2]);
@@ -103,11 +110,10 @@ int	init_philo(t_table *table, char **argv, int argc)
 	}
 	if (init_forks(table, 0))
 	{
-		printf("Error: mutex init failed\n");
 		free_philoforks(table);
 		return (1);
 	}
-	init_tables(table, 0);
+	init_table(table, 0);
 	return (0);
 }
 
@@ -127,7 +133,7 @@ int	main(int argc, char **argv)
 	}
 	if (init_philo(&table, argv, argc))
 		return (1);
-	if (create_threads(&table))
+	if (create_threads(&table, -1))
 	{
 		destroy_threads(&table);
 		free_philoforks(&table);

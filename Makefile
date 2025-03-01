@@ -3,7 +3,7 @@ NAME = philo
 SOURCES =	main.c \
 		philo.c \
 		free.c	\
-		monitor.c \
+		table.c \
 		utils.c \
 		thread.c \
 		input.c 

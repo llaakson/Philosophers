@@ -6,7 +6,7 @@
 /*   By: llaakson <llaakson@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 12:26:31 by llaakson          #+#    #+#             */
-/*   Updated: 2025/02/19 13:47:40 by llaakson         ###   ########.fr       */
+/*   Updated: 2025/02/25 14:47:02 by llaakson         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 # include <limits.h>
 
 typedef struct s_table {
-	struct s_philo		*philo;
+	struct s_philo	*philo;
 	int				end;
 	size_t			time_to_die;
 	size_t			time_to_eat;
@@ -43,19 +43,19 @@ typedef struct s_philo {
 	pthread_t		thread;
 	pthread_mutex_t	*fork_left;
 	pthread_mutex_t	*fork_right;
-	t_table	*table;
+	t_table			*table;
 }	t_philo;
 
 int		ft_atoi(const char *str);
 size_t	get_time(void);
 void	*philosopher(void *ptr);
-void	destroy_threads(t_table *pp);
-void	*monitor(void *ptr);
+void	destroy_threads(t_table *table);
+void	*ft_table(void *ptr);
 int		check_input(int argc, char **argv);
 void	philo_printf(char *str, int name, size_t time, t_table *table);
 long	ft_long_atoi(const char *str);
-size_t	ft_usleep(size_t time, t_philo *philo);
-int		create_threads(t_table *pp);
-void	free_philoforks(t_table *pp);
+size_t	philo_usleep(size_t time, t_philo *philo);
+int		create_threads(t_table *table, int i);
+void	free_philoforks(t_table *table);
 
 #endif

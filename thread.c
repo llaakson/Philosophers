@@ -6,13 +6,13 @@
 /*   By: llaakson <llaakson@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/19 12:23:16 by llaakson          #+#    #+#             */
-/*   Updated: 2025/02/25 15:03:18 by llaakson         ###   ########.fr       */
+/*   Updated: 2025/03/02 21:27:20 by llaakson         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static int	join_threads(t_table *table)
+static void	join_threads(t_table *table)
 {
 	int	i;
 
@@ -25,7 +25,6 @@ static int	join_threads(t_table *table)
 	}
 	if (pthread_join(table->dead_check, NULL) != 0)
 		printf("Error: Failed to join thread\n");
-	return (0);
 }
 
 int	create_threads(t_table *table, int i)
@@ -44,14 +43,15 @@ int	create_threads(t_table *table, int i)
 	}
 	if (pthread_create(&table->dead_check, NULL, &ft_table, table) != 0)
 	{
+		pthread_mutex_lock(&table->death_mutex);
 		table->dead = 1;
+		pthread_mutex_unlock(&table->death_mutex);
 		while (--i >= 0)
 			if (pthread_join(table->philo[i].thread, NULL) != 0)
 				printf("Error: Failed to join thread\n");
 		printf("Error: Failed to create threads\n");
 		return (1);
 	}
-	if (join_threads(table))
-		return (1);
+	join_threads(table);
 	return (0);
 }

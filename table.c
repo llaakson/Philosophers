@@ -6,7 +6,7 @@
 /*   By: llaakson <llaakson@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/14 05:45:38 by llaakson          #+#    #+#             */
-/*   Updated: 2025/02/25 16:07:34 by llaakson         ###   ########.fr       */
+/*   Updated: 2025/03/02 21:28:13 by llaakson         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,8 @@ static int	check_pulse(t_table *table, int i, size_t time)
 			table->dead = 1;
 			pthread_mutex_unlock(&table->death_mutex);
 			pthread_mutex_lock(&table->print_mutex);
-			printf("%zu %d died\n", time, table->philo[i].name);
+			printf("%zu %d died\n",
+				(get_time() - table->start), table->philo[i].name);
 			pthread_mutex_unlock(&table->print_mutex);
 			return (1);
 		}

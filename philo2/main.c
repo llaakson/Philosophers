@@ -6,18 +6,18 @@
 /*   By: llaakson <llaakson@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 19:37:52 by llaakson          #+#    #+#             */
-/*   Updated: 2025/03/02 21:31:20 by llaakson         ###   ########.fr       */
+/*   Updated: 2025/03/02 18:24:12 by llaakson         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static int	init_philo(t_table *table, int i)
+static int	init_table(t_table *table, int i)
 {
 	while (i < table->number_of_philosophers)
 	{
 		table->philo[i].name = i + 1;
-		if (i % 2 == 0)
+		if (i % 2 == 0 )
 		{
 			if (i == 0)
 				table->philo[i].fork_left
@@ -90,7 +90,7 @@ static int	init_forks(t_table *table, int i)
 	return (0);
 }
 
-static int	init_table(t_table *table, char **argv, int argc)
+static int	init_philo(t_table *table, char **argv, int argc)
 {
 	table->number_of_philosophers = ft_long_atoi(argv[1]);
 	table->time_to_die = ft_long_atoi(argv[2]);
@@ -113,7 +113,7 @@ static int	init_table(t_table *table, char **argv, int argc)
 		free_philoforks(table);
 		return (1);
 	}
-	init_philo(table, 0);
+	init_table(table, 0);
 	return (0);
 }
 
@@ -131,7 +131,7 @@ int	main(int argc, char **argv)
 		printf("Error: Use only positive integers\n");
 		return (1);
 	}
-	if (init_table(&table, argv, argc))
+	if (init_philo(&table, argv, argc))
 		return (1);
 	if (create_threads(&table, -1))
 	{

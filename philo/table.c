@@ -6,7 +6,7 @@
 /*   By: llaakson <llaakson@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/14 05:45:38 by llaakson          #+#    #+#             */
-/*   Updated: 2025/03/02 21:28:13 by llaakson         ###   ########.fr       */
+/*   Updated: 2025/03/03 17:34:44 by llaakson         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@ static int	check_meals(t_table *table, int i, int check)
 {
 	while (i < table->number_of_philosophers)
 	{
-		pthread_mutex_lock(&table->meal_mutex);
+		pthread_mutex_lock(&table->philo[i].meal_mutex);
 		if (table->philo[i].meals >= table->number_of_meals)
 		{
 			check = 1;
@@ -24,29 +24,30 @@ static int	check_meals(t_table *table, int i, int check)
 		else
 		{
 			check = 0;
-			pthread_mutex_unlock(&table->meal_mutex);
+			pthread_mutex_unlock(&table->philo[i].meal_mutex);
 			break ;
 		}
-		pthread_mutex_unlock(&table->meal_mutex);
+		pthread_mutex_unlock(&table->philo[i].meal_mutex);
 		i++;
 	}
-	pthread_mutex_lock(&table->death_mutex);
 	if (check == 1)
+	{
+		pthread_mutex_lock(&table->death_mutex);
 		table->dead = 1;
-	pthread_mutex_unlock(&table->death_mutex);
+		pthread_mutex_unlock(&table->death_mutex);
+	}
 	return (check);
 }
 
-static int	check_pulse(t_table *table, int i, size_t time)
+static int	check_pulse(t_table *table, int i)
 {
 	while (i < table->number_of_philosophers)
 	{
-		pthread_mutex_lock(&table->meal_mutex);
-		time = get_time() - table->philo[i].last_meal;
-		pthread_mutex_unlock(&table->meal_mutex);
-		pthread_mutex_lock(&table->death_mutex);
-		if (time > table->time_to_die)
+		pthread_mutex_lock(&table->philo[i].meal_mutex);
+		if ((get_time() - table->philo[i].last_meal) > table->time_to_die)
 		{
+			pthread_mutex_unlock(&table->philo[i].meal_mutex);
+			pthread_mutex_lock(&table->death_mutex);
 			table->dead = 1;
 			pthread_mutex_unlock(&table->death_mutex);
 			pthread_mutex_lock(&table->print_mutex);
@@ -55,7 +56,7 @@ static int	check_pulse(t_table *table, int i, size_t time)
 			pthread_mutex_unlock(&table->print_mutex);
 			return (1);
 		}
-		pthread_mutex_unlock(&table->death_mutex);
+		pthread_mutex_unlock(&table->philo[i].meal_mutex);
 		i++;
 	}
 	return (0);
@@ -70,7 +71,7 @@ void	*ft_table(void *ptr)
 		usleep(100);
 	while (1)
 	{
-		if (check_pulse(table, 0, 0))
+		if (check_pulse(table, 0))
 			return (NULL);
 		if (table->number_of_meals != 0)
 			if (check_meals(table, 0, 0))

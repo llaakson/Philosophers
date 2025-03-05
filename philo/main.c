@@ -6,18 +6,18 @@
 /*   By: llaakson <llaakson@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/15 19:37:52 by llaakson          #+#    #+#             */
-/*   Updated: 2025/03/02 18:24:12 by llaakson         ###   ########.fr       */
+/*   Updated: 2025/03/06 00:00:13 by llaakson         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-static int	init_table(t_table *table, int i)
+static int	init_philo(t_table *table, int i)
 {
-	while (i < table->number_of_philosophers)
+	while (++i < table->number_of_philosophers)
 	{
 		table->philo[i].name = i + 1;
-		if (i % 2 == 0 )
+		if (i % 2 == 0)
 		{
 			if (i == 0)
 				table->philo[i].fork_left
@@ -34,7 +34,9 @@ static int	init_table(t_table *table, int i)
 		table->philo[i].table = table;
 		table->philo[i].meals = 0;
 		table->philo[i].last_meal = table->start;
-		i++;
+		table->philo[i].next_meal = table->start;
+		if (init_philo_mealmutex(table, i))
+			return (1);
 	}
 	return (0);
 }
@@ -46,16 +48,9 @@ static int	init_mutexes(t_table *table)
 		printf("Error: mutex init failed\n");
 		return (1);
 	}
-	if (pthread_mutex_init(&table->meal_mutex, NULL) != 0)
-	{
-		printf("Error: mutex init failed\n");
-		pthread_mutex_destroy(&table->print_mutex);
-		return (1);
-	}
 	if (pthread_mutex_init(&table->death_mutex, NULL) != 0)
 	{
 		printf("Error: mutex init failed\n");
-		pthread_mutex_destroy(&table->meal_mutex);
 		pthread_mutex_destroy(&table->print_mutex);
 		return (1);
 	}
@@ -79,7 +74,6 @@ static int	init_forks(t_table *table, int i)
 		{
 			while (--i >= 0)
 				pthread_mutex_destroy(&table->forks[i]);
-			pthread_mutex_destroy(&table->meal_mutex);
 			pthread_mutex_destroy(&table->print_mutex);
 			pthread_mutex_destroy(&table->death_mutex);
 			printf("Error: mutex init failed\n");
@@ -90,7 +84,7 @@ static int	init_forks(t_table *table, int i)
 	return (0);
 }
 
-static int	init_philo(t_table *table, char **argv, int argc)
+static int	init_table(t_table *table, char **argv, int argc)
 {
 	table->number_of_philosophers = ft_long_atoi(argv[1]);
 	table->time_to_die = ft_long_atoi(argv[2]);
@@ -113,7 +107,8 @@ static int	init_philo(t_table *table, char **argv, int argc)
 		free_philoforks(table);
 		return (1);
 	}
-	init_table(table, 0);
+	if (init_philo(table, -1))
+		return (1);
 	return (0);
 }
 
@@ -131,9 +126,9 @@ int	main(int argc, char **argv)
 		printf("Error: Use only positive integers\n");
 		return (1);
 	}
-	if (init_philo(&table, argv, argc))
+	if (init_table(&table, argv, argc))
 		return (1);
-	if (create_threads(&table, -1))
+	if (create_threads(&table))
 	{
 		destroy_threads(&table);
 		free_philoforks(&table);

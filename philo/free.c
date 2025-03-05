@@ -32,10 +32,10 @@ void	destroy_threads(t_table *table)
 
 	i = 0;
 	pthread_mutex_destroy(&table->print_mutex);
-	pthread_mutex_destroy(&table->meal_mutex);
 	pthread_mutex_destroy(&table->death_mutex);
 	while (i < table->number_of_philosophers)
 	{
+		pthread_mutex_destroy(&table->philo[i].meal_mutex);
 		pthread_mutex_destroy(&table->forks[i]);
 		i++;
 	}
